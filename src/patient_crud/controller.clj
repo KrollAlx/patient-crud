@@ -1,30 +1,60 @@
 (ns patient-crud.controller
-  (:require 
-   [clojure.data.json :as json] 
-   [patient-crud.db :as db])
-  (:gen-class))
+  (:require
+   [clojure.data.json :as json]
+   [patient-crud.db :as db]
+   [clj-time.format :as f]))
 
 ;; TODO initial realization
-(defn date-writer [key value]
+(defn- date-writer [key value]
   (if (= key :birth_date)
-    (str value)
+    (str value) ;; mb use f/unparse
     value))
 
-(defn get-patients-controller [_]
+(defn- date-reader [key value]
+  (if (= key :birth_date)
+    (f/parse value)
+    value))
+
+(defn- success-response [body]
   {:status 200
    :headers {"Content-Type" "application/json"}
-   :body (json/write-str (db/get-all-patients) :value-fn date-writer)})
+   :body body})
 
-(defn get-patient-controller [req] 
-  (let [id (get-in req [:route-params :id])]
-    {:status 200
-     :headers {"Content-Type" "application/json"}
-     :body (json/write-str (db/get-patient (Integer/parseInt id)) :value-fn date-writer)}))
+(defn get-patients-controller [_]
+  (success-response (json/write-str (db/get-all-patients) :value-fn date-writer)))
 
-;; (get-patients-handler {:a 1})
+(defn get-patient-controller [req]
+  (let [id (-> (get-in req [:route-params :id])
+               (Integer/parseInt))]
+    (success-response (json/write-str (db/get-patient id) :value-fn date-writer))))
 
-;; (def date #inst "2013-02-07T19:08:12.107-00:00")
+(defn create-patient-contoller [req]
+  (let [patient-data (json/read-str (slurp (:body req)) 
+                                    :value-fn date-reader
+                                    :key-fn keyword)
+        patient (db/create-patient patient-data)]
+    (success-response (json/write-str patient :value-fn date-writer))))
 
-;; (str date)
+(defn update-patient-controller [req]
+  (let [id (-> (get-in req [:route-params :id])
+               (Integer/parseInt))
+        patient-data (-> (json/read-str (slurp (:body req))
+                                        :value-fn date-reader
+                                        :key-fn keyword)
+                         (assoc :id id))
+        patient (db/update-patient patient-data)]
+    (success-response (json/write-str patient :value-fn date-writer))))
 
-;; (int "2")
+(defn delete-patient-controller [req]
+  (let [id (-> (get-in req [:route-params :id])
+               (Integer/parseInt))]
+     {:status 200
+      :body (db/delete-patient id)}))
+
+;; (def built-in-formatter (f/formatter "yyyy-MM-dd"))
+
+;; (def now (f/parse "2022-10-24T00:00:00.000Z"))
+;; now
+
+;; (json/read-str "{\"a\":1,\"b\":2}")
+;; (f/unparse built-in-formatter now)

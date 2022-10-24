@@ -11,4 +11,4 @@ pom.xml.asc
 /.clj-kondo
 /.lsp
 /.env.development
-/.calva/output-window
+/.calva

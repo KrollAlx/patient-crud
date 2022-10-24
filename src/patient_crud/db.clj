@@ -3,9 +3,8 @@
    [dotenv :refer [env]]
    [clojure.java.jdbc :as jdbc]
    [honey.sql :as sql]
-  ;;  [clj-time.core :as t]
-   [clj-time.jdbc])
-  (:gen-class))
+   [clj-time.core :as t]
+   [clj-time.jdbc]))
 
 (def db
   {:dbtype "postgresql"
@@ -14,7 +13,7 @@
    :user (env :DB_USER)
    :password (env :DB_PASS)})
 
-(defn select-query [sqlmap]
+(defn- select-query [sqlmap]
   (jdbc/query db (sql/format sqlmap)))
 
 (defn get-all-patients []
@@ -39,10 +38,11 @@
 (defn delete-patient [id]
   (jdbc/delete! db :patients ["id = ?" id]))
 
-;; (def test-patient {:id 5 :first_name "kisa" :surname "lol" :middle_name "a"
-;;                 ;;    :sex "male" :birth_date (.g)(new java.util.Date) :address "aboba"
-;;                    :sex "male" :birth_date (t/now) :address "aboba"
+;; (def test-patient {:first_name "dog" :surname "lol" :middle_name "a" 
+;;                    :sex "female" :birth_date (t/now) :address "aboba"
 ;;                    :policy_number "123426"})
+
+;; (create-patient test-patient)
 
 ;; (jdbc/execute! db (sql/format {:insert-into [:patients]
 ;;                                :columns [:first_name :surname :middle_name :sex :birth_date :address :policy_number]
@@ -54,3 +54,5 @@
 ;;                                :where [:= :id 2]}))
 
 ;; (jdbc/insert! db :patients test-patient)
+
+;; (println (t/now))
