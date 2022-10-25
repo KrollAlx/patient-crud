@@ -3,12 +3,7 @@
             [ring.mock.request :as mock]
             [patient-crud.handler :refer :all]))
 
-(deftest test-app
-  (testing "main route"
-    (let [response (app (mock/request :get "/"))]
-      (is (= (:status response) 200))
-      (is (= (:body response) "Hi kroll"))))
-  
+(deftest test-app 
   (testing "patients route"
     (let [response (app (mock/request :get "/patients"))]
       (is (= (:status response) 200))))

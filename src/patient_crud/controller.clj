@@ -51,6 +51,16 @@
      {:status 200
       :body (db/delete-patient id)}))
 
+(defn filter-patients-controller [req]
+  (let [filter-col (-> (get-in req [:params :col])
+                       (keyword))
+        value (get-in req [:params :value])]
+    (success-response (json/write-str (db/filter-patients filter-col value) :value-fn date-writer))))
+
+(defn search-patient-controller [req]
+  (let [name (get-in req [:params :name])]
+    (success-response (json/write-str (db/seach-patient name) :value-fn date-writer))))
+
 ;; (def built-in-formatter (f/formatter "yyyy-MM-dd"))
 
 ;; (def now (f/parse "2022-10-24T00:00:00.000Z"))

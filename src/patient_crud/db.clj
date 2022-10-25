@@ -3,7 +3,7 @@
    [dotenv :refer [env]]
    [clojure.java.jdbc :as jdbc]
    [honey.sql :as sql]
-   [clj-time.core :as t]
+  ;;  [clj-time.core :as t]
    [clj-time.jdbc]))
 
 (def db
@@ -37,6 +37,16 @@
 
 (defn delete-patient [id]
   (jdbc/delete! db :patients ["id = ?" id]))
+
+(defn filter-patients [filter-col value]
+  (select-query {:select [:*]
+                 :from [:patients]
+                 :where [:= filter-col value]}))
+
+(defn seach-patient [name]
+  (select-query {:select [:*]
+                 :from [:patients]
+                 :where [:= :first_name name]}))
 
 ;; (def test-patient {:first_name "dog" :surname "lol" :middle_name "a" 
 ;;                    :sex "female" :birth_date (t/now) :address "aboba"
