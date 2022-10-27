@@ -12,3 +12,12 @@ pom.xml.asc
 /.lsp
 /.env.development
 /.calva
+/out/
+/resources/public/js/compiled/
+/target/
+/*-init.clj
+/*.log
+/.lein-*
+/.nrepl-port
+/node_modules/
+/.shadow-cljs/
