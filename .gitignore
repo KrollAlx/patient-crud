@@ -19,5 +19,5 @@ pom.xml.asc
 /*.log
 /.lein-*
 /.nrepl-port
-/node_modules/
+/frontend/node_modules/
 /.shadow-cljs/
