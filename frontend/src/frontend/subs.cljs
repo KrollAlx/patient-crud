@@ -3,6 +3,11 @@
    [re-frame.core :as re-frame]))
 
 (re-frame/reg-sub
- ::name
+ ::patients
  (fn [db]
-   (:name db)))
+   (:patients db)))
+
+(re-frame/reg-sub
+ ::patient-data
+ (fn [db]
+   (:patient-data db)))
