@@ -17,6 +17,22 @@
    (assoc-in db [:patient-data id] val)))
 
 (re-frame/reg-event-fx
+ ::fetch-patients
+ (fn [{:keys [db]} _]
+   {:db   (assoc db :show-twirly true)
+    :http-xhrio {:method          :get
+                 :uri             "http://localhost:3000/patients" 
+                 :timeout         8000 
+                 :response-format (ajax/json-response-format {:keywords? true})
+                 :on-success      [::fetch-patients-success]
+                 :on-failure      [::fetch-patients-success]}}))
+
+(re-frame/reg-event-db 
+ ::fetch-patients-success
+ (fn [db [_ data]]
+   (assoc db :patients data)))
+
+(re-frame/reg-event-fx
  ::create-patient
  (fn [{:keys [db]} _]                    
    {:db   (assoc db :show-twirly true)
@@ -24,7 +40,14 @@
                  :uri             "http://localhost:3000/patients"
                  :params (:patient-data db)
                  :timeout         8000
-                 :request-format  (ajax/json-request-format)
+                 :format  (ajax/json-request-format)
                  :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success      [:good-http-result]
-                 :on-failure      [:bad-http-result]}}))
+                 :on-success      [::success-create-patient]
+                 :on-failure      [::success-create-patient]}}))
+
+(re-frame/reg-event-db
+ ::success-create-patient
+ (fn [db [_ [data]]]
+   (-> db
+       (update :patients conj data)
+       (update :patient-data (fn [_] {})))))

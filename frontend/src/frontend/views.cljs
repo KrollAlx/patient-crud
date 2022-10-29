@@ -40,24 +40,29 @@
                              :type "radio" :name name :value value}]
    [:label.form-check-label label]])
 
+(defn date-picker [key min max]
+  (let [data-field (string/replace (name key) #"_" " ")
+        value (-> (re-frame/subscribe [::subs/patient-data])
+                  (deref)
+                  (get key ""))]
+     [:div.form-group
+      [:label (string/capitalize data-field)]
+      [:input.form-control {:on-change #(re-frame/dispatch [::events/update-form-data
+                                                            key (-> % .-target .-value)])
+                            :type "date" :min min :max max :value value}]]))
+
 (defn patient-form []
-  [:form.mt-4
+  [:div.mt-4
    [:h3 "Patient form"]
    [text-input :first_name]
    [text-input :surname]
    [text-input :middle_name]
-   [:div.form-group
-    [:label "Birth date"]
-    ;; [datepicker :start-of-week 0]]
-    [:input.form-control {:on-change #(re-frame/dispatch [::events/update-form-data
-                                                          :birth_date (-> % .-target .-value)])
-                          :type "date" :min "1930-01-01" :max "2022-01-01"}]]
+   [date-picker :birth_date "1930-01-01" "2022-01-01"]
    [text-input :address]
    [text-input :policy_number]
    [radio-button "Male" "sex-radio" :sex "male"]
    [radio-button "Female" "sex-radio" :sex "female"] 
-   [:button.btn.btn-primary.mt-3.mb-4 {
-                                       :type "submit"} "Create patient"]])
+   [:button.btn.btn-primary.mt-3.mb-4 {:on-click #(re-frame/dispatch [::events/create-patient])} "Create patient"]])
 
 (defn main-panel []
   (let [patients (re-frame/subscribe [::subs/patients])]
