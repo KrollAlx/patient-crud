@@ -3,6 +3,7 @@
             [compojure.route :as route]
             [patient-crud.controller :as controller] 
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
+            [ring.middleware.cors :refer [wrap-cors]]
             [ring.util.response :as response]))
 
 (defroutes app-routes
@@ -17,4 +18,6 @@
   (route/not-found "Not Found"))
 
 (def app
-  (wrap-defaults app-routes api-defaults))
+  (wrap-cors (wrap-defaults app-routes api-defaults)
+             :access-control-allow-origin [#".*"]
+             :access-control-allow-methods [:get :post :put :delete]))

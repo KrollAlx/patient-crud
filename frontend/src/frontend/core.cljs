@@ -20,7 +20,7 @@
     (rdom/render [views/main-panel] root-el)))
 
 (defn init []
-  ;; (re-frame/dispatch-sync [::events/initialize-db])
+  (re-frame/dispatch-sync [::events/initialize-db])
   (re-frame/dispatch [::events/fetch-patients])
   (dev-setup)
   (mount-root))

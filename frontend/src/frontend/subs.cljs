@@ -11,3 +11,8 @@
  ::patient-data
  (fn [db]
    (:patient-data db)))
+
+(re-frame/reg-sub
+ ::form-valid?
+ (fn [db]
+   (:form-valid? db)))

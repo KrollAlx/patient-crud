@@ -11,7 +11,8 @@
                  [ring/ring-defaults "0.3.2"]
                  [lynxeyes/dotenv "1.0.2"] 
                  [com.github.seancorfield/honeysql "2.3.928"]
-                 [clj-time "0.15.2"]]
+                 [clj-time "0.15.2"]
+                 [ring-cors "0.1.13"]]
   :plugins [[lein-ring "0.12.5"]]
   :ring {:handler patient-crud.handler/app}
   :profiles

@@ -4,11 +4,11 @@
    [patient-crud.db :as db]
    [clj-time.format :as f]))
 
-;; TODO initial realization
 (defn- date-writer [key value]
-  (if (= key :birth_date)
-    (str value) ;; mb use f/unparse
-    value))
+  (let [fmt (f/formatter "yyyy-MM-dd")]
+    (if (= key :birth_date)
+      (f/unparse fmt value)
+      value)))
 
 (defn- date-reader [key value]
   (if (= key :birth_date)

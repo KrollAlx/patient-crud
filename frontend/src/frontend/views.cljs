@@ -3,11 +3,8 @@
    [re-frame.core :as re-frame]
    [frontend.subs :as subs]
    [frontend.events :as events]
-   [clojure.string :as string]
-  ;;  [re-com.core :refer [datepicker]]
+   [clojure.string :as string] 
    ))
-
-;; (string/capitalize (name :key))
 
 (defn patient-card [patient]
   [:div.card.mt-3.mb-3 {:key (:id patient)}
@@ -18,8 +15,9 @@
     [:p.card-text (str "Address: " (:address patient))]
     [:p.card-text (str "Policy number: " (:policy_number patient))]
     [:div.btn-group
-     [:button.btn.btn-primary "Update patient"]
-     [:button.btn.btn-danger "Delete patient"]]]])
+     [:button.btn.btn-primary "Update patient" ]
+     [:button.btn.btn-danger {:on-click #(re-frame/dispatch [::events/delete-patient
+                                                             (:id patient)])} "Delete patient"]]]])
 
 (defn text-input [key]
   (let [data-field (string/replace (name key) #"_" " ")
@@ -28,7 +26,7 @@
                   (get key ""))]
     [:div.form-group
      [:label (string/capitalize data-field)]
-     [:input.form-control {:on-change #(re-frame/dispatch [::events/update-form-data 
+     [:input.form-control {:on-change #(re-frame/dispatch [::events/update-form-data
                                                            key (-> % .-target .-value)])
                            :placeholder (str "Enter " data-field)
                            :value value}]]))
@@ -52,17 +50,20 @@
                             :type "date" :min min :max max :value value}]]))
 
 (defn patient-form []
-  [:div.mt-4
-   [:h3 "Patient form"]
-   [text-input :first_name]
-   [text-input :surname]
-   [text-input :middle_name]
-   [date-picker :birth_date "1930-01-01" "2022-01-01"]
-   [text-input :address]
-   [text-input :policy_number]
-   [radio-button "Male" "sex-radio" :sex "male"]
-   [radio-button "Female" "sex-radio" :sex "female"] 
-   [:button.btn.btn-primary.mt-3.mb-4 {:on-click #(re-frame/dispatch [::events/create-patient])} "Create patient"]])
+  (let [form-valid? @(re-frame/subscribe [::subs/form-valid?])]
+    [:div.mt-4
+     [:h3 "Patient form"]
+     (when-not form-valid?
+       [:label.text-danger "Validation error!"])
+     [text-input :first_name]
+     [text-input :surname]
+     [text-input :middle_name]
+     [date-picker :birth_date "1930-01-01" "2022-01-01"]
+     [text-input :address]
+     [text-input :policy_number]
+     [radio-button "Male" "sex-radio" :sex "male"]
+     [radio-button "Female" "sex-radio" :sex "female"]
+     [:button.btn.btn-primary.mt-3.mb-4 {:on-click #(re-frame/dispatch [::events/create-patient])} "Create patient"]]))
 
 (defn main-panel []
   (let [patients (re-frame/subscribe [::subs/patients])]
