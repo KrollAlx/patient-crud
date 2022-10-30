@@ -14,6 +14,8 @@
 /backend/.calva/
 /frontend/.calva/
 /out/
+/.lsp/
+/.clj-kondo/
 /frontend/resources/public/js/compiled/
 /frontend/target/
 /frontend/.lsp
