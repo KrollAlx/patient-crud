@@ -55,7 +55,7 @@
             (> (count (get patient-data :policy_number "")) 0))))
 
 (defn create-patient-fx [{:keys [db]} _]
-  {:db   (update db :form-valid? (fn [_] true))
+  {:db   (update db :create-form-valid? (fn [_] true))
    :http-xhrio {:method          :post
                 :uri             "http://localhost:3000/patients"
                 :params (:patient-data db)
@@ -72,7 +72,7 @@
 (defn create-patient [db [_]]
   (if (validate-patient (:patient-data db))
     (re-frame/dispatch [::create-patient-fx])
-    (update db :form-valid? (fn [_] false))))
+    (update db :create-form-valid? (fn [_] false))))
 
 (re-frame/reg-event-db
  ::create-patient
@@ -108,3 +108,48 @@
 (re-frame/reg-event-db
  ::success-delete-patient
  success-delete-patient)
+
+(defn start-update-patient [db [_ patient]]
+  (-> db
+      (update :update-patient? (fn [_] true))
+      (update :patient-data (fn [_] patient))))
+
+(re-frame/reg-event-db
+ ::start-update-patient
+ start-update-patient)
+
+(defn update-patient-fx [{:keys [db]} [_ id]]
+  {:db   (update db :update-form-valid? (fn [_] true))
+   :http-xhrio {:method          :put
+                :uri             (str "http://localhost:3000/patients/" id)
+                :params (:patient-data db)
+                :timeout         8000
+                :format  (ajax/json-request-format)
+                :response-format (ajax/json-response-format {:keywords? true})
+                :on-success      [::success-update-patient]
+                :on-failure      [::success-update-patient]}})
+
+(re-frame/reg-event-fx
+ ::update-patient-fx
+ update-patient-fx)
+
+(defn update-patient [db [_]]
+  (if (validate-patient (:patient-data db))
+    (re-frame/dispatch [::update-patient-fx (get-in db [:patient-data :id])])
+    (update db :update-form-valid? (fn [_] false))))
+
+(re-frame/reg-event-db
+ ::update-patient
+ update-patient)
+
+(defn success-update-patient [db [_ [data]]]
+  (let [patients (:patients db)
+        updated-patient-list (mapv (fn [patient] (if (= (:id patient) (:id data)) data patient)) patients)]
+    (-> db
+        (update :patients (fn [_] updated-patient-list))
+        (update :patient-data (fn [_] {}))
+        (update :update-patient? (fn [_] false)))))
+
+(re-frame/reg-event-db
+ ::success-update-patient
+ success-update-patient)

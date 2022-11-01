@@ -6,19 +6,6 @@
    [clojure.string :as string] 
    ))
 
-(defn patient-card [patient]
-  [:div.card.mt-3.mb-3 {:key (:id patient)}
-   [:div.card-body
-    [:h5.card-title (str (:surname patient) " " (:first_name patient) " " (:middle_name patient))]
-    [:p.card-text (str "Sex: " (:sex patient))]
-    [:p.card-text (str "Birth date: " (:birth_date patient))]
-    [:p.card-text (str "Address: " (:address patient))]
-    [:p.card-text (str "Policy number: " (:policy_number patient))]
-    [:div.btn-group
-     [:button.btn.btn-primary "Update patient" ]
-     [:button.btn.btn-danger {:on-click #(re-frame/dispatch [::events/delete-patient
-                                                             (:id patient)])} "Delete patient"]]]])
-
 (defn text-input [key]
   (let [data-field (string/replace (name key) #"_" " ")
         value (-> (re-frame/subscribe [::subs/patient-data])
@@ -43,14 +30,15 @@
         value (-> (re-frame/subscribe [::subs/patient-data])
                   (deref)
                   (get key ""))]
-     [:div.form-group
-      [:label (string/capitalize data-field)]
-      [:input.form-control {:on-change #(re-frame/dispatch [::events/update-form-data
-                                                            key (-> % .-target .-value)])
-                            :type "date" :min min :max max :value value}]]))
+    [:div.form-group
+     [:label (string/capitalize data-field)]
+     [:input.form-control {:on-change #(re-frame/dispatch [::events/update-form-data
+                                                           key (-> % .-target .-value)])
+                           :type "date" :min min :max max :value value}]]))
 
-(defn patient-form []
-  (let [form-valid? @(re-frame/subscribe [::subs/form-valid?])]
+(defn patient-form [valid-key]
+  (let [form-valid? @(re-frame/subscribe [valid-key])
+        update-patient? @(re-frame/subscribe [::subs/update-patient?])]
     [:div.mt-4
      [:h3 "Patient form"]
      (when-not form-valid?
@@ -63,11 +51,30 @@
      [text-input :policy_number]
      [radio-button "Male" "sex-radio" :sex "male"]
      [radio-button "Female" "sex-radio" :sex "female"]
-     [:button.btn.btn-primary.mt-3.mb-4 {:on-click #(re-frame/dispatch [::events/create-patient])} "Create patient"]]))
+     (if update-patient?
+       [:button.btn.btn-primary.mt-3.mb-4 {:on-click #(re-frame/dispatch [::events/update-patient])} "Save"]
+       [:button.btn.btn-primary.mt-3.mb-4 {:on-click #(re-frame/dispatch [::events/create-patient])} "Create patient"])]))
+
+(defn patient-card [patient]
+  [:div.card.mt-3.mb-3 {:key (:id patient)}
+   [:div.card-body
+    [:h5.card-title (str (:surname patient) " " (:first_name patient) " " (:middle_name patient))]
+    [:p.card-text (str "Sex: " (:sex patient))]
+    [:p.card-text (str "Birth date: " (:birth_date patient))]
+    [:p.card-text (str "Address: " (:address patient))]
+    [:p.card-text (str "Policy number: " (:policy_number patient))]
+    [:div.btn-group
+     [:button.btn.btn-primary {:on-click #(re-frame/dispatch [::events/start-update-patient 
+                                                              patient])} "Update patient"]
+     [:button.btn.btn-danger {:on-click #(re-frame/dispatch [::events/delete-patient
+                                                             (:id patient)])} "Delete patient"]]]])
 
 (defn main-panel []
-  (let [patients (re-frame/subscribe [::subs/patients])]
+  (let [patients @(re-frame/subscribe [::subs/patients])
+        update-patient? @(re-frame/subscribe [::subs/update-patient?])]
     [:div.container
      [:h1.text-center.mt-3.mb-3 "Patients list"]
-     (map patient-card @patients)
-     [patient-form]]))
+     (map patient-card patients)
+     [patient-form (if update-patient?
+                     ::subs/update-form-valid?
+                     ::subs/create-form-valid?)]]))

@@ -22,13 +22,13 @@
 
 (deftest test-validate-patient-data
   (let [db (-> (events/initialize-db)
-                         (events/update-form-data [::update-form-data :first_name "alex"])
-                         (events/update-form-data [::update-form-data :surname "rakitin"])
-                         (events/update-form-data [::update-form-data :middle_name "evgenevich"])
-                         (events/update-form-data [::update-form-data :sex "male"])
-                         (events/update-form-data [::update-form-data :birth_date "2000-06-05"])
-                         (events/update-form-data [::update-form-data :address "pushkina street 32"])
-                         (events/update-form-data [::update-form-data :policy_number "12345678"]))
+               (events/update-form-data [::update-form-data :first_name "alex"])
+               (events/update-form-data [::update-form-data :surname "rakitin"])
+               (events/update-form-data [::update-form-data :middle_name "evgenevich"])
+               (events/update-form-data [::update-form-data :sex "male"])
+               (events/update-form-data [::update-form-data :birth_date "2000-06-05"])
+               (events/update-form-data [::update-form-data :address "pushkina street 32"])
+               (events/update-form-data [::update-form-data :policy_number "12345678"]))
         correct-patient-data (:patient-data db)
         incorrect-patient-data (-> db
                                    (events/update-form-data [::update-form-data :first_name ""])

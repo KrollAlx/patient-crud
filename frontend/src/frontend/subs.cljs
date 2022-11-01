@@ -13,6 +13,20 @@
    (:patient-data db)))
 
 (re-frame/reg-sub
- ::form-valid?
+ ::create-form-valid?
  (fn [db]
-   (:form-valid? db)))
+   (:create-form-valid? db)))
+
+(re-frame/reg-sub
+ ::update-form-valid?
+ (fn [db]
+   (:update-form-valid? db)))
+
+(re-frame/reg-sub
+ ::update-patient?
+ (fn [db]
+   (:update-patient? db)))
+
+(re-frame/reg-sub-raw
+ ::modal
+ (fn [db _] (:modal db)))
