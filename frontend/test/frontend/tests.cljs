@@ -61,7 +61,7 @@
                    (events/update-form-data [::update-form-data :first_name "alex"])
                    (events/success-create-patient [::success-create-patient [new-patient]]))]
     (testing "Incorrect patient data"
-      (is (= (:form-valid? db) false)))
+      (is (= (:create-form-valid? db) false)))
     (testing "Success create patient"
       (is (= (:patients new-db) [new-patient]))
       (is (= (:patient-data new-db) {})))))
@@ -84,5 +84,42 @@
       (is (= (get-in effect [:http-xhrio :on-success]) [:frontend.events/success-delete-patient (:id new-patient)])))
     (testing "Success delete patient"
       (is (= (:patients new-db) [])))))
+
+(deftest test-update-patient 
+  (let [new-patient {:id 1
+                     :first_name "alex"
+                     :surname "rakitin"
+                     :middle_name "evgenevich"
+                     :sex "male"
+                     :birth_date "2000-06-05"
+                     :address "pushkina street 32"
+                     :policy_number "12345678"}
+        db (-> (events/initialize-db)
+               (events/success-create-patient [::success-create-patient [new-patient]])
+               (events/start-update-patient [::start-update-patient new-patient]))]
+    (testing "Start update"
+      (is (= (:update-patient? db) true))
+      (is (= (:patient-data db) new-patient)))
+    (testing "Incorrect patient data"
+      (let [db (-> db
+                       (events/update-form-data [::update-form-data :first_name ""])
+                       (events/update-patient [::update-patient]))]
+        (is (= (:update-form-valid? db) false))))
+    (testing "Update patient"
+      (let [updated-patient {:id 1
+                             :first_name "alexey"
+                             :surname "rakitin"
+                             :middle_name "evgenevich"
+                             :sex "male"
+                             :birth_date "2000-06-05"
+                             :address "pushkina street 32"
+                             :policy_number "12345678"}
+            db (-> db
+                   (events/update-form-data [::update-form-data :first_name "alexey"])
+                   (events/success-update-patient [::success-update-patient [updated-patient]]))]
+        (is (= (:patients db) [updated-patient]))
+        (is (= (:update-patient? db) false))
+        (is (= (:update-form-valid? db) true))
+        (is (= (:patient-data db) {}))))))
 
 ;; (cljs.test/run-tests)

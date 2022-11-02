@@ -5,6 +5,10 @@
    [ajax.core :as ajax]
    ))
 
+(def url "http://localhost:3000/patients")
+
+(def search-url (str url "/search?name="))
+
 (defn initialize-db []
   db/default-db)
 
@@ -22,7 +26,7 @@
 (defn fetch-patients [{:keys [db]} _]
   {:db db
    :http-xhrio {:method          :get
-                :uri             "http://localhost:3000/patients"
+                :uri             url
                 :timeout         8000
                 :response-format (ajax/json-response-format {:keywords? true})
                 :on-success      [::fetch-patients-success]
@@ -57,7 +61,7 @@
 (defn create-patient-fx [{:keys [db]} _]
   {:db   (update db :create-form-valid? (fn [_] true))
    :http-xhrio {:method          :post
-                :uri             "http://localhost:3000/patients"
+                :uri             url
                 :params (:patient-data db)
                 :timeout         8000
                 :format  (ajax/json-request-format)
@@ -90,7 +94,7 @@
 (defn delete-patient [{:keys [db]} [_ id]]
   {:db db
    :http-xhrio {:method          :delete
-                :uri             (str "http://localhost:3000/patients/" id)
+                :uri             (str url "/" id)
                 :timeout         8000
                 :format  (ajax/json-request-format)
                 :response-format (ajax/json-response-format {:keywords? true})
@@ -121,7 +125,7 @@
 (defn update-patient-fx [{:keys [db]} [_ id]]
   {:db   (update db :update-form-valid? (fn [_] true))
    :http-xhrio {:method          :put
-                :uri             (str "http://localhost:3000/patients/" id)
+                :uri             (str url "/" id)
                 :params (:patient-data db)
                 :timeout         8000
                 :format  (ajax/json-request-format)
@@ -153,3 +157,35 @@
 (re-frame/reg-event-db
  ::success-update-patient
  success-update-patient)
+
+(defn update-search-value [db [_ val]]
+  (assoc db :search-value val))
+
+(re-frame/reg-event-db
+ ::update-search-value
+ update-search-value)
+
+(defn search-patient [{:keys [db]} _]
+  {:db db
+   :http-xhrio {:method          :get
+                :uri             (str search-url (:search-value db))
+                :timeout         8000
+                :response-format (ajax/json-response-format {:keywords? true})
+                :on-success      [::success-search-patient]
+                :on-failure      [::failure-search-patient]}})
+
+(re-frame/reg-event-fx
+ ::search-patient
+ search-patient)
+
+(defn success-search-patient [db [_ data]]
+  (assoc db :patients data))
+
+(re-frame/reg-event-db
+ ::success-search-patient
+ success-search-patient)
+
+(re-frame/reg-event-db
+ ::failure-search-patient
+ (fn [db _]
+   db))

@@ -27,6 +27,7 @@
  (fn [db]
    (:update-patient? db)))
 
-(re-frame/reg-sub-raw
- ::modal
- (fn [db _] (:modal db)))
+(re-frame/reg-sub
+ ::search-value
+ (fn [db]
+   (:search-value db)))

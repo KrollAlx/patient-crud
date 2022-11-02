@@ -69,12 +69,27 @@
      [:button.btn.btn-danger {:on-click #(re-frame/dispatch [::events/delete-patient
                                                              (:id patient)])} "Delete patient"]]]])
 
+(defn search-card []
+  (let [search-value @(re-frame/subscribe [::subs/search-value])]
+    [:div.card.mt-3.mb-2
+     [:div.card-body
+      [:input.form-control {:placeholder "Search by first name"
+                            :value search-value
+                            :on-change #(re-frame/dispatch [::events/update-search-value (-> % .-target .-value)])}]
+      [:button.btn.btn-primary.mt-3 {:on-click #(re-frame/dispatch [::events/search-patient])} "Search"]
+      [:button.btn.btn-primary.mt-3.ml-3 {:on-click #(re-frame/dispatch [::events/fetch-patients])} "Cancel"]]]))
+
 (defn main-panel []
   (let [patients @(re-frame/subscribe [::subs/patients])
         update-patient? @(re-frame/subscribe [::subs/update-patient?])]
     [:div.container
-     [:h1.text-center.mt-3.mb-3 "Patients list"]
-     (map patient-card patients)
-     [patient-form (if update-patient?
-                     ::subs/update-form-valid?
-                     ::subs/create-form-valid?)]]))
+     [:div.row
+      [:div.col-8
+       [:h1.text-center.mt-3.mb-3 "Patients list"]
+       (map patient-card patients)
+       [patient-form (if update-patient?
+                       ::subs/update-form-valid?
+                       ::subs/create-form-valid?)]]
+      [:div.col
+       [:h1.text-center.mt-3.mb-3 "Search and filter"]
+       [search-card]]]]))
