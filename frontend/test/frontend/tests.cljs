@@ -147,4 +147,48 @@
       (let [db (events/success-search-patient db [::success-search-patient [patient-2]])]
         (is (= (:patients db) [patient-2]))))))
 
+(deftest test-fetch-patients
+  (let [patient-1 {:first_name "alex"
+                   :surname "rakitin"
+                   :middle_name "evgenevich"
+                   :sex "male"
+                   :birth_date "2000-06-05"
+                   :address "pushkina street 32"
+                   :policy_number "12345678"}
+        patient-2 {:first_name "artem"
+                   :surname "nikitin"
+                   :middle_name "alekseevich"
+                   :sex "male"
+                   :birth_date "2000-09-19"
+                   :address "lenina street 18"
+                   :policy_number "56382956"}
+        db (-> (events/initialize-db)
+               (events/fetch-patients-success [::fetch-patients-success [patient-1 patient-2]]))]
+    (is (= (:patients db) [patient-1 patient-2]))))
+
+(deftest test-filter-patients
+  (let [patient-1 {:first_name "alex"
+                   :surname "rakitin"
+                   :middle_name "evgenevich"
+                   :sex "male"
+                   :birth_date "2000-06-05"
+                   :address "pushkina street 32"
+                   :policy_number "12345678"}
+        patient-2 {:first_name "masha"
+                   :surname "nikitina"
+                   :middle_name "alekseevna"
+                   :sex "female"
+                   :birth_date "2000-09-19"
+                   :address "lenina street 18"
+                   :policy_number "56382956"}
+        db (-> (events/initialize-db)
+               (events/success-create-patient [::success-create-patient [patient-1]])
+               (events/success-create-patient [::success-create-patient [patient-2]]))]
+    (testing "Update filter value"
+      (let [db (events/update-filter-value db [::update-filter-value "male"])]
+        (is (= (:filter-value db) "male"))))
+    (testing "Filter patient"
+      (let [db (events/filter-patients-success db [::filter-patients-success [patient-2]])]
+        (is (= (:patients db) [patient-2]))))))
+
 (cljs.test/run-tests)

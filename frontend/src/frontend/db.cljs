@@ -6,4 +6,5 @@
    :create-form-valid? true
    :update-form-valid? true
    :update-patient? false
-   :search-value ""})
+   :search-value ""
+   :filter-value ""})

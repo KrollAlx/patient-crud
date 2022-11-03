@@ -189,3 +189,35 @@
  ::failure-search-patient
  (fn [db _]
    db))
+
+(defn update-filter-value [db [_ val]]
+  (assoc db :filter-value val))
+
+(re-frame/reg-event-db
+ ::update-filter-value
+ update-filter-value)
+
+(defn filter-patients [{:keys [db]} _]
+  {:db db
+   :http-xhrio {:method          :get
+                :uri             (str url "/filter?col=sex&value=" (:filter-value db))
+                :timeout         8000
+                :response-format (ajax/json-response-format {:keywords? true})
+                :on-success      [::filter-patients-success]
+                :on-failure      [::filter-patients-failure]}})
+
+(re-frame/reg-event-fx
+ ::filter-patients
+ filter-patients)
+
+(defn filter-patients-success [db [_ data]]
+  (assoc db :patients data))
+
+(re-frame/reg-event-db
+ ::filter-patients-success
+ filter-patients-success)
+
+(re-frame/reg-event-db
+ ::filter-patients-failure
+ (fn [db _]
+   db))

@@ -79,6 +79,21 @@
       [:button.btn.btn-primary.mt-3 {:on-click #(re-frame/dispatch [::events/search-patient])} "Search"]
       [:button.btn.btn-primary.mt-3.ml-3 {:on-click #(re-frame/dispatch [::events/fetch-patients])} "Cancel"]]]))
 
+(defn filter-card []
+  ;; (let [filter-value @(re-frame/subscribe [::subs/filter-value])])
+  [:div.card.mt-3
+   [:div.card-body
+    [:div.form-check
+     [:input.form-check-input {:on-change #(re-frame/dispatch [::events/update-filter-value (-> % .-target .-value)])
+                               :type "radio" :name "filter" :value "male"}]
+     [:label.form-check-label "Male"]]
+    [:div.form-check
+     [:input.form-check-input {:on-change #(re-frame/dispatch [::events/update-filter-value (-> % .-target .-value)])
+                               :type "radio" :name "filter" :value "female"}]
+     [:label.form-check-label "Female"]]
+    [:button.btn.btn-primary.mt-3 {:on-click #(re-frame/dispatch [::events/filter-patients])} "Filter"]
+    [:button.btn.btn-primary.mt-3.ml-3 {:on-click #(re-frame/dispatch [::events/fetch-patients])} "Cancel"]]])
+
 (defn main-panel []
   (let [patients @(re-frame/subscribe [::subs/patients])
         update-patient? @(re-frame/subscribe [::subs/update-patient?])]
@@ -92,4 +107,5 @@
                        ::subs/create-form-valid?)]]
       [:div.col
        [:h1.text-center.mt-3.mb-3 "Search and filter"]
-       [search-card]]]]))
+       [search-card]
+       [filter-card]]]]))

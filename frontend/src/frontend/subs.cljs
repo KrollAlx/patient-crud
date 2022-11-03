@@ -31,3 +31,8 @@
  ::search-value
  (fn [db]
    (:search-value db)))
+
+;; (re-frame/reg-sub
+;;  ::filter-value
+;;  (fn [db]
+;;    (:filter-value db)))
