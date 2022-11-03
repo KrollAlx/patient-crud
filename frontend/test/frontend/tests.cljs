@@ -80,7 +80,7 @@
         effect (events/delete-patient db [::delete-patient (:id new-patient)])
         new-db (events/success-delete-patient db [::success-delete-patient (:id new-patient)])]
     (testing "Correct effect" 
-      (is (= (get-in effect [:http-xhrio :uri]) (str "http://localhost:3000/patients/" (:id new-patient))))
+      (is (= (get-in effect [:http-xhrio :uri]) (str events/url "/" (:id new-patient))))
       (is (= (get-in effect [:http-xhrio :on-success]) [:frontend.events/success-delete-patient (:id new-patient)])))
     (testing "Success delete patient"
       (is (= (:patients new-db) [])))))
@@ -122,4 +122,29 @@
         (is (= (:update-form-valid? db) true))
         (is (= (:patient-data db) {}))))))
 
-;; (cljs.test/run-tests)
+(deftest test-search-patient
+  (let [patient-1 {:first_name "alex"
+                   :surname "rakitin"
+                   :middle_name "evgenevich"
+                   :sex "male"
+                   :birth_date "2000-06-05"
+                   :address "pushkina street 32"
+                   :policy_number "12345678"}
+        patient-2 {:first_name "artem"
+                   :surname "nikitin"
+                   :middle_name "alekseevich"
+                   :sex "male"
+                   :birth_date "2000-09-19"
+                   :address "lenina street 18"
+                   :policy_number "56382956"}
+        db (-> (events/initialize-db)
+               (events/success-create-patient [::success-create-patient [patient-1]])
+               (events/success-create-patient [::success-create-patient [patient-2]]))]
+    (testing "Update search value"
+      (let [db (events/update-search-value db [::update-search-value "artem"])]
+        (is (= (:search-value db) "artem")))) 
+    (testing "Search patient"
+      (let [db (events/success-search-patient db [::success-search-patient [patient-2]])]
+        (is (= (:patients db) [patient-2]))))))
+
+(cljs.test/run-tests)
