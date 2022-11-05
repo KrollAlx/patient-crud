@@ -191,4 +191,4 @@
       (let [db (events/filter-patients-success db [::filter-patients-success [patient-2]])]
         (is (= (:patients db) [patient-2]))))))
 
-(cljs.test/run-tests)
+;; (cljs.test/run-tests)

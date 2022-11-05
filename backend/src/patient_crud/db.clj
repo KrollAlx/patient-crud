@@ -41,9 +41,9 @@
 (defn filter-patients [filter-col value]
   (select-query {:select [:*]
                  :from [:patients]
-                 :where [:= filter-col value]}))
+                 :where [:<> filter-col value]}))
 
-(defn seach-patient [name]
+(defn search-patient [name]
   (select-query {:select [:*]
                  :from [:patients]
                  :where [:= :first_name name]}))

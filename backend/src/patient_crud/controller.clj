@@ -59,7 +59,7 @@
 
 (defn search-patient-controller [req]
   (let [name (get-in req [:params :name])]
-    (success-response (json/write-str (db/seach-patient name) :value-fn date-writer))))
+    (success-response (json/write-str (db/search-patient name) :value-fn date-writer))))
 
 ;; (def built-in-formatter (f/formatter "yyyy-MM-dd"))
 

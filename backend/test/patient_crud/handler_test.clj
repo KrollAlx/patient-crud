@@ -5,7 +5,7 @@
 
 (deftest test-app 
   (testing "patients route"
-    (let [response (app (mock/request :get "/patients"))]
+    (let [response (app (mock/request :get "/patients"))] 
       (is (= (:status response) 200))))
 
   (testing "not-found route"
