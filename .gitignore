@@ -12,6 +12,7 @@
 /backend/.lsp
 /backend/.env.development
 /backend/.calva/
+/backend/.env*
 /frontend/.calva/
 /out/
 /.lsp/
