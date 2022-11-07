@@ -1,47 +1,17 @@
 (ns patient-crud.database-test
   (:require [patient-crud.db :as db]
-            [clojure.java.jdbc :as jdbc]
             [clj-time.format :as f] 
-            [clj-time.jdbc]
-            [clojure.test :refer :all]))
-
-(def test-data [{:first_name "alexey"
-                 :surname "rakitin"
-                 :middle_name "evgenevich"
-                 :sex "male"
-                 :birth_date (f/parse "2000-06-05")
-                 :address "pushkina street 32"
-                 :policy_number "12345679"}
-                {:first_name "alisa"
-                 :surname "rakitina"
-                 :middle_name "evgenevna"
-                 :sex "female"
-                 :birth_date (f/parse "1990-10-15")
-                 :address "pushkina street 32"
-                 :policy_number "75843635"}])
-
-(defn insert-test-data []
-  (jdbc/insert-multi! db/db :patients test-data))
-
-(defn delete-test-data []
-  (jdbc/execute! db/db ["delete from patients"]))
-
-(defn setup-db-fixture [test]
-  (insert-test-data)
-  (test)
-  (delete-test-data))
+            [patient-crud.fixture :refer [setup-db-fixture test-data]]
+            [clojure.test :refer :all]
+            [patient-crud.utils :refer [select-patient-data]]))
 
 (use-fixtures :each setup-db-fixture)
 
-(deftest crud-test
+(deftest test-crud
   (testing "Get all patients"
     (let [patients (->> (db/get-all-patients)
-                        (mapv (fn [p]
-                                (select-keys p
-                                             [:first_name :surname :middle_name :sex :address :policy_number]))))]
-      (is (= patients (mapv (fn [p] 
-                              (select-keys p [:first_name :surname :middle_name :sex :address :policy_number])) 
-                             test-data)))))
+                        (mapv select-patient-data))]
+      (is (= patients (mapv select-patient-data test-data)))))
   
   (testing "Get one patient"
     (let [first-patient (-> (db/get-all-patients)
@@ -60,8 +30,8 @@
                        :policy_number "759275834"}
           result (-> (db/create-patient new-patient)
                      (first)
-                     (select-keys [:first_name :surname :middle_name :sex :address :policy_number]))]
-      (is (= result (select-keys new-patient [:first_name :surname :middle_name :sex :address :policy_number]))))) 
+                     (select-patient-data))]
+      (is (= result (select-patient-data new-patient))))) 
   
   (testing "Update patient"
     (let [patient (-> (db/get-all-patients)
@@ -69,28 +39,29 @@
           updated-patient (assoc patient :first_name "maksim")
           result (-> (db/update-patient updated-patient)
                      (first)
-                     (select-keys [:first_name :surname :middle_name :sex :address :policy_number]))]
-      (is (= result (select-keys updated-patient [:first_name :surname :middle_name :sex :address :policy_number])))))
+                     (select-patient-data))]
+      (is (= result (select-patient-data updated-patient)))))
   
   (testing "Delete patient"
     (let [deleted-patient (-> (db/get-all-patients)
                               (first))
           result (db/delete-patient (:id deleted-patient))
           patients (db/get-all-patients)]
+      (is (= result '(1)))
       (is (not (some #(= deleted-patient %) patients))))))
 
-(deftest filter-test
+(deftest test-filter
   (let [result (-> (db/filter-patients :sex "female")
                    (first)
-                   (select-keys [:first_name :surname :middle_name :sex :address :policy_number]))]
+                   (select-patient-data))]
     (is (= result (-> test-data
                       (first)
-                      (select-keys [:first_name :surname :middle_name :sex :address :policy_number]))))))
+                      (select-patient-data))))))
 
-(deftest search-test
+(deftest test-search
   (let [result (-> (db/search-patient "alexey")
                    (first)
-                   (select-keys [:first_name :surname :middle_name :sex :address :policy_number]))]
+                   (select-patient-data))]
     (is (= result (-> test-data
                       (first)
-                      (select-keys [:first_name :surname :middle_name :sex :address :policy_number]))))))
+                      (select-patient-data))))))

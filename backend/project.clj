@@ -17,5 +17,4 @@
   :ring {:handler patient-crud.handler/app}
   :profiles
   {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
-                        [ring/ring-mock "0.3.2"]
-                        [stylefruits/fixpoint "0.1.3"]]}})
+                        [ring/ring-mock "0.3.2"]]}})

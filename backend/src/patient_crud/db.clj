@@ -47,22 +47,3 @@
   (select-query {:select [:*]
                  :from [:patients]
                  :where [:= :first_name name]}))
-
-;; (def test-patient {:first_name "dog" :surname "lol" :middle_name "a" 
-;;                    :sex "female" :birth_date (t/now) :address "aboba"
-;;                    :policy_number "123426"})
-
-;; (create-patient test-patient)
-
-;; (jdbc/execute! db (sql/format {:insert-into [:patients]
-;;                                :columns [:first_name :surname :middle_name :sex :birth_date :address :policy_number]
-;;                                :values [(vals test-patient)]}))
-
-;; (jdbc/execute! db (sql/format {:update :patients
-;;                                :set (select-keys test-patient
-;;                                                  [:first_name :surname :middle_name :sex :birth_date :address :policy_number])
-;;                                :where [:= :id 2]}))
-
-;; (jdbc/insert! db :patients test-patient)
-
-;; (println (t/now))
