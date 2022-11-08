@@ -59,7 +59,7 @@
                      :policy_number "12345678"}
         new-db (-> db
                    (events/update-form-data [::update-form-data :first_name "alex"])
-                   (events/success-create-patient [::success-create-patient [new-patient]]))]
+                   (events/create-patient-success [::create-patient-success [new-patient]]))]
     (testing "Incorrect patient data"
       (is (= (:create-form-valid? db) false)))
     (testing "Success create patient"
@@ -76,12 +76,12 @@
                      :address "pushkina street 32"
                      :policy_number "12345678"}
         db (-> (events/initialize-db)
-               (events/success-create-patient [::success-create-patient [new-patient]]))
+               (events/create-patient-success [::create-patient-success [new-patient]]))
         effect (events/delete-patient db [::delete-patient (:id new-patient)])
-        new-db (events/success-delete-patient db [::success-delete-patient (:id new-patient)])]
+        new-db (events/delete-patient-success db [::delete-patient-success (:id new-patient)])]
     (testing "Correct effect" 
       (is (= (get-in effect [:http-xhrio :uri]) (str events/url "/" (:id new-patient))))
-      (is (= (get-in effect [:http-xhrio :on-success]) [:frontend.events/success-delete-patient (:id new-patient)])))
+      (is (= (get-in effect [:http-xhrio :on-success]) [:frontend.events/delete-patient-success (:id new-patient)])))
     (testing "Success delete patient"
       (is (= (:patients new-db) [])))))
 
@@ -95,7 +95,7 @@
                      :address "pushkina street 32"
                      :policy_number "12345678"}
         db (-> (events/initialize-db)
-               (events/success-create-patient [::success-create-patient [new-patient]])
+               (events/create-patient-success [::create-patient-success [new-patient]])
                (events/start-update-patient [::start-update-patient new-patient]))]
     (testing "Start update"
       (is (= (:update-patient? db) true))
@@ -116,7 +116,7 @@
                              :policy_number "12345678"}
             db (-> db
                    (events/update-form-data [::update-form-data :first_name "alexey"])
-                   (events/success-update-patient [::success-update-patient [updated-patient]]))]
+                   (events/update-patient-success [::update-patient-success [updated-patient]]))]
         (is (= (:patients db) [updated-patient]))
         (is (= (:update-patient? db) false))
         (is (= (:update-form-valid? db) true))
@@ -138,13 +138,13 @@
                    :address "lenina street 18"
                    :policy_number "56382956"}
         db (-> (events/initialize-db)
-               (events/success-create-patient [::success-create-patient [patient-1]])
-               (events/success-create-patient [::success-create-patient [patient-2]]))]
+               (events/create-patient-success [::create-patient-success [patient-1]])
+               (events/create-patient-success [::create-patient-success [patient-2]]))]
     (testing "Update search value"
       (let [db (events/update-search-value db [::update-search-value "artem"])]
         (is (= (:search-value db) "artem")))) 
     (testing "Search patient"
-      (let [db (events/success-search-patient db [::success-search-patient [patient-2]])]
+      (let [db (events/search-patient-success db [::search-patient-success [patient-2]])]
         (is (= (:patients db) [patient-2]))))))
 
 (deftest test-fetch-patients
@@ -182,8 +182,8 @@
                    :address "lenina street 18"
                    :policy_number "56382956"}
         db (-> (events/initialize-db)
-               (events/success-create-patient [::success-create-patient [patient-1]])
-               (events/success-create-patient [::success-create-patient [patient-2]]))]
+               (events/create-patient-success [::create-patient-success [patient-1]])
+               (events/create-patient-success [::create-patient-success [patient-2]]))]
     (testing "Update filter value"
       (let [db (events/update-filter-value db [::update-filter-value "male"])]
         (is (= (:filter-value db) "male"))))
