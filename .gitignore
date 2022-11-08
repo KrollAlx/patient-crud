@@ -29,3 +29,4 @@
 /frontend/.nrepl-port
 /frontend/node_modules/
 /frontend/.shadow-cljs/
+.DS_Store

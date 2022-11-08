@@ -39,7 +39,7 @@
 (defn patient-form [valid-key]
   (let [form-valid? @(re-frame/subscribe [valid-key])
         update-patient? @(re-frame/subscribe [::subs/update-patient?])]
-    [:div.mt-4
+    [:div.mt-4 {:id "patient-form"}
      [:h3 "Patient form"]
      (when-not form-valid?
        [:label.text-danger "Validation error!"])
@@ -64,8 +64,9 @@
     [:p.card-text (str "Address: " (:address patient))]
     [:p.card-text (str "Policy number: " (:policy_number patient))]
     [:div.btn-group
-     [:button.btn.btn-primary {:on-click #(re-frame/dispatch [::events/start-update-patient 
-                                                              patient])} "Update patient"]
+     [:button.btn.btn-primary {:on-click (fn [_]
+                                           (.scrollIntoView (.getElementById js/document "patient-form"))
+                                           (re-frame/dispatch [::events/start-update-patient patient]))} "Update patient"]
      [:button.btn.btn-danger {:on-click #(re-frame/dispatch [::events/delete-patient
                                                              (:id patient)])} "Delete patient"]]]])
 
