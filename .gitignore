@@ -19,6 +19,7 @@
 /.clj-kondo/
 /frontend/resources/public/js/compiled/
 /frontend/target/
+/frontend/out/
 /frontend/.lsp
 /frontend/.clj-kondo/
 /frontend/*-init.clj

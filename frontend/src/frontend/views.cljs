@@ -80,7 +80,6 @@
       [:button.btn.btn-primary.mt-3.ml-3 {:on-click #(re-frame/dispatch [::events/fetch-patients])} "Cancel"]]]))
 
 (defn filter-card []
-  ;; (let [filter-value @(re-frame/subscribe [::subs/filter-value])])
   [:div.card.mt-3
    [:div.card-body
     [:div.form-check
