@@ -1,4 +1,4 @@
-name: Clojure CI
+name: Patient CRUD CI
 
 on:
   push:
