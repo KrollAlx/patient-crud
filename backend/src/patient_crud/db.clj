@@ -46,4 +46,4 @@
 (defn search-patient [name]
   (select-query {:select [:*]
                  :from [:patients]
-                 :where [:= :first_name name]}))
+                 :where [:ilike :first_name (str "%" name "%")]}))
